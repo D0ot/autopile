@@ -1,1 +1,5 @@
 *.swp
+Pipfile
+Pipfile.lock
+Learnse/*
+
