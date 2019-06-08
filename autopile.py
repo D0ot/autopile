@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-##########################
-# this script use pipenv #
-##########################
+###########################
+# this script uses pipenv #
+###########################
 
 import ap_config as cfg
 import sh
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             else:
                 print("Sending Failed. exit")
                 exit(1)
-            
+
     if tryTimes > cfg.maxTryTimes:
         exit(2)
 

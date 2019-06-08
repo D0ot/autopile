@@ -1,5 +1,4 @@
 *.swp
-Pipfile.lock
 Learnse/*
 __pycache__/*
 .vscode/*

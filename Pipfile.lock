@@ -1,0 +1,37 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "9bca160953dc237388726af55c89c142183cd1966903a25584c428b605d39138"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.6"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.tuna.tsinghua.edu.cn/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "plumbum": {
+            "hashes": [
+                "sha256:d143f079bfb60b11e9bec09a49695ce2e55ce5ca0246877bdb0818ab7c7fc312",
+                "sha256:df96a5facf621db4a6d682bdc93afa5ed6b107a8667c73c3f0a0f0fab4217c81"
+            ],
+            "index": "pypi",
+            "version": "==1.6.7"
+        },
+        "sh": {
+            "hashes": [
+                "sha256:ae3258c5249493cebe73cb4e18253a41ed69262484bad36fdb3efcb8ad8870bb",
+                "sha256:b52bf5833ed01c7b5c5fb73a7f71b3d98d48e9b9b8764236237bdc7ecae850fc"
+            ],
+            "index": "pypi",
+            "version": "==1.12.14"
+        }
+    },
+    "develop": {}
+}
