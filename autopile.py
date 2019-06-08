@@ -8,62 +8,94 @@ import ap_config as cfg
 import sh
 import io
 import ap_email
+import time
+
+def exitWithEMailSent(mailSubject, mailBody, exitCode):
+    pass
+    try:
+        ap_email.sendMail(mailSubject, mailBody)
+    except Exception as e:
+        print("Exception caught in exitWithEMailSent(), exit(1)")
+        exit(1)
+
+    exit(exitCode)
+
+
+
+
 if __name__ == '__main__':
     print('Autocompile.py is running...')
+    #cfg.Context('test')
+    cfg.Context('utbasecode')
     tryTimes = 1
+    mailContent = ''
+
+    gitCloneSuccFlag = False
+    cmakeSuccFlag = False
+    makeSuccFlag = False
+
+    sh.cd(cfg.globalCwd)
+
+    stdoutput = io.StringIO()
+    sh.ls('-d',sh.glob('*/') ,_out=stdoutput)
+    dirs = [ _[:-1] for _ in stdoutput.getvalue().split()]
+
+
+    if cfg.projectname in dirs:
+        print("Old " + cfg.projectname + ' Found, remove it')
+        sh.rm('-r', cfg.projectname)
+
+
     while tryTimes <= cfg.maxTryTimes:
         try:
-            sh.cd(cfg.globalCwd)
 
-            stdoutput = io.StringIO()
-            sh.ls('-d',sh.glob('*/') ,_out=stdoutput)
-            dirs = [ _[:-1] for _ in stdoutput.getvalue().split()]
-            nameIsIn = False
-            for x in dirs:
-                if x == cfg.projectname:
-                    nameIsIn = True
-                    break
-        
-            if nameIsIn == True:
-                print("Remove old ", cfg.projectname)
-                sh.rm('-r', cfg.projectname)
+            if gitCloneSuccFlag:
+                print("git clone, successed, skip")
+            else:
+                #sh.contrib.git.clone(cfg.repository)
+                gitCloneSuccFlag = True
 
-            sh.git.clone(cfg.repository)
             sh.cd(cfg.projectname)
-            sh.cmake('.')
-            sh.make('-j{}'.format(cfg.thread))
+
+            if cmakeSuccFlag:
+                print("cmake, successed, skip")
+            else:
+                sh.cmake('.')
+                cmakeSuccFlag = True
+
+            if makeSuccFlag:
+                print("make, successed, skip")
+            else:
+                sh.make('-j{}'.format(cfg.thread))
+                makeSuccFlag = True
+
             break
         except Exception as e:
             print("Build Failed")
             print("Try : ", tryTimes)
             print('Exception Caught:', e)
-            print("Sending Email to Admins...")
             
+            
+            addtionalMsg = 'This is try:{} failed, it is going to retry...'.format(tryTimes) + '\n'
+            addtionalMsg += 'git clone status:' + str(gitCloneSuccFlag) + '\n' + \
+                'cmake status: ' + str(cmakeSuccFlag) + '\n' + \
+                'make status: ' + str(makeSuccFlag) + '\n'
             tryTimes += 1
-            
-            if tryTimes == cfg.maxTryTimes:
-                addtionalMsg = 'Try times used up, Fatal error, exit...'    
-            else:
-                addtionalMsg = 'This is try:{}, it is going to retry...'.format(tryTimes)
-            
-                sh.cd(cfg.globalCwd)
-                sh.rm('-r', cfg.projectname)
+            sh.cd(cfg.globalCwd)
+            sh.rm('-rf', cfg.projectname)
 
-            ret = ap_email.sendNotifyMail("Autopile Error", exceptionMsg=e.args[0], 
-                addtionalMsg=repr(e) + '\n' + addtionalMsg)
-            if ret:
-                print("Sending Email to Admins successful.")
-            else:
-                print("Sending Failed. exit")
-                exit(1)
+            mailContent += ap_email.generateNotifyText("Autopile Error", exceptionMsg=str(e) + '\n' + repr(e), addtionalMsg=addtionalMsg)
+            time.sleep(1)
 
     if tryTimes > cfg.maxTryTimes:
-        exit(2)
+        print("MaxTryTime Reached, Sending EMail to admins, exit(2)")
+        mailContent += "MaxTryTime Reached, exit(2)"
+        exitWithEMailSent("Autopile Log", mailContent, 2)
 
     
     print("Build successful")
     print("Sending Email to admins...")
-    ap_email.sendNotifyMail("Autopile Build Successful")
-
+    mailContent += ap_email.generateNotifyText("Autopile Build successful")
+    exitWithEMailSent("Autopile Log", mailContent, 0)
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-###########################
-#  This script use pipenv #
-###########################
+############################
+#  This script uses pipenv #
+############################
 
 # This is a config file for Autopile
 # global 
@@ -29,29 +29,23 @@ username = 'robocup3dnotify@outlook.com'
 # it is not real password, it is just a permission code
 password = 'robocup3d' 
 
-# add send self to receiver
-# or it will get blocked smtp.163.com
+# add sended self to receiver ie. Cc
+# or it will get blocked smtp.163.com, FXXK 163's spam detect system
 if smtpServer.find('@163.com') != -1 :
     receivers += [sender]
 
 
 def Context(context):
+
+    global maxTryTimes, repository, projectname
+
     if context == 'test':
-        log = False
-        logFile = ''
-        maxTryTimes = 10
-        globalCwd = '/home/doot/robocup3d/autopile'
-        repository = 'git@github.com:D0ot/Learnse.git'
-        projectname = 'Learnse'
-        thread = 14
-        smtpServer = 'smtp.office365.com'
-        smtpServerPort = 587
-        sender = 'robocup3dnotify@outlook.com'
-        receivers = ['1306793135@qq.com']
-        username = 'robocup3dnotify@outlook.com'
-        password = 'robocup3d' 
-        if smtpServer.find('@163.com') != -1 :
-            receivers += [sender]
+        maxTryTimes = 3
+
+    if context == 'utbasecode':
+        maxTryTimes = 3
+        repository = 'git@github.com:LARG/utaustinvilla3d.git'
+        projectname = 'utaustinvilla3d'
 
     if context == 'log':
         log = True

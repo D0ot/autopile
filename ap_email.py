@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-###########################
-#  This script use pipenv #
-###########################
+############################
+#  This script uses pipenv #
+############################
 
 
 import ap_config as cfg
@@ -12,28 +12,38 @@ from email.header import Header
 from email.mime.text import MIMEText
 
 
-def sendNotifyMail(briefError,* , whichMachine = socket.gethostname(),timeStamp=time.ctime() , exceptionMsg='' , addtionalMsg=''): 
-    msgBody = briefError + '\n'
+def generateNotifyText(briefError, *, timeStamp=time.ctime() , exceptionMsg='' , addtionalMsg=''):
+    msgBody = '*'*50 + '\n'
+    msgBody += briefError + '\n'
     msgBody += 'Timestamp : ' + timeStamp + '\n'
 
     if exceptionMsg != '':
-        msgBody += 'Exception Message : ' + exceptionMsg + '\n'
+        msgBody += '-'*20 + '\n'
+        msgBody += 'Exception Message : ' + exceptionMsg + '\n'+ '-'*20 + '\n'
     
     if addtionalMsg != '':
         msgBody += 'Addtional Messages : ' + addtionalMsg
-
-    errorMsg = MIMEText(msgBody, 'plain', 'utf-8')
-    errorMsg['From'] = whichMachine + '<' + cfg.sender + '>'
-    recList = 'Receivers' + '<'
-    for x in cfg.receivers:
-        recList += x + ','
-
-    recList = recList[:-1]
+    msgBody += '*'*50 + '\n'
+    return msgBody
 
 
-    errorMsg['To'] = recList + '>'
-    errorMsg['Subject'] = Header(briefError, 'utf-8')
-    errorMsg['Cc'] = cfg.sender
+
+
+
+def sendNotifyMail(briefError,* , whichMachine = socket.gethostname(),timeStamp=time.ctime() , exceptionMsg='' , addtionalMsg=''): 
+    msgBody = generateNotifyText(briefError, exceptionMsg=exceptionMsg, addtionalMsg=addtionalMsg)
+    return sendMail(briefError, msgBody, whichMachine)
+
+
+
+
+
+def sendMail(mailSubject, mailBody, mailSenderName = socket.gethostname()):
+    msg = MIMEText(mailBody, 'plain', 'utf-8')
+    msg['From'] = mailSenderName + '<'  + cfg.sender + '>'
+    msg['To'] = '<' + ','.join(cfg.receivers) + '>'
+    msg['Subject'] = Header(mailSubject, 'utf-8')
+    msg['Cc'] = cfg.sender
 
     sucFlag = True
 
@@ -47,13 +57,19 @@ def sendNotifyMail(briefError,* , whichMachine = socket.gethostname(),timeStamp=
             smtp = smtplib.SMTP()
             smtp.connect(cfg.smtpServer)
         smtp.login(cfg.username, cfg.password)
-        smtp.sendmail(cfg.sender, cfg.receivers, errorMsg.as_string())
+        smtp.sendmail(cfg.sender, cfg.receivers, msg.as_string())
         
     except smtplib.SMTPException as e:
         print(e)
         sucFlag = False
     
     return sucFlag
+
+
+# TODO
+def sendMailWithFile(mailSubject, mailBody, mailSenderName, mailFileName):
+    pass
+
 
 
 # This may not work for outlook
