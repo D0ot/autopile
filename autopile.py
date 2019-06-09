@@ -52,7 +52,8 @@ if __name__ == '__main__':
             if gitCloneSuccFlag:
                 print("git clone, successed, skip")
             else:
-                #sh.contrib.git.clone(cfg.repository)
+                print("git cloning...");
+                sh.contrib.git.clone(cfg.repository, cfg.projectname)
                 gitCloneSuccFlag = True
 
             sh.cd(cfg.projectname)
@@ -60,12 +61,14 @@ if __name__ == '__main__':
             if cmakeSuccFlag:
                 print("cmake, successed, skip")
             else:
+                print('cmake is running')
                 sh.cmake('.')
                 cmakeSuccFlag = True
 
             if makeSuccFlag:
                 print("make, successed, skip")
             else:
+                print('make is running...')
                 sh.make('-j{}'.format(cfg.thread))
                 makeSuccFlag = True
 
